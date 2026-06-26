@@ -7,6 +7,14 @@ import torch
 # Fix per PyTorch 2.6+: TTS carica checkpoint con weights_only=True di default
 _safe_load = torch.load
 torch.load = lambda *a, **kw: _safe_load(*a, **kw, weights_only=False)
+# Fix per PyTorch 2.6+: torchaudio usa di default torchcodec che fallisce su Windows senza FFmpeg globale
+import torchaudio
+_original_load = torchaudio.load
+def _safe_torchaudio_load(filepath, *args, **kwargs):
+    kwargs['backend'] = 'soundfile'
+    return _original_load(filepath, *args, **kwargs)
+torchaudio.load = _safe_torchaudio_load
+
 from TTS.api import TTS
 from flask import Flask, request, send_file, jsonify, Response
 from flask_cors import CORS
