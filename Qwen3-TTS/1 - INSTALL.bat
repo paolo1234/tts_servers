@@ -191,7 +191,7 @@ echo [8] Generazione script avvio...
 >> "2 - START GPU.bat" echo set HUGGINGFACE_HUB_CACHE=%%~dp0huggingface_cache\hub
 >> "2 - START GPU.bat" echo.
 >> "2 - START GPU.bat" echo :: Auto-detect GPU al runtime
->> "2 - START GPU.bat" echo for /f "tokens=1,2 delims=^|" %%%%a in ('uv run python -c "import torch; d='cuda:0' if torch.cuda.is_available() else 'cpu'; t='bfloat16' if torch.cuda.is_available() and torch.cuda.get_device_capability(0)[0]>=8 else 'float16' if torch.cuda.is_available() else 'float32'; print(f'{d}|{t}')" 2^>nul') do (
+>> "2 - START GPU.bat" echo for /f "tokens=1,2 delims=^|" %%%%a in ('uv run python -c "import torch; d='cuda:0' if torch.cuda.is_available() else 'cpu'; t='bfloat16' if torch.cuda.is_available() and torch.cuda.get_device_capability(0)[0]>=8 else 'float16' if torch.cuda.is_available() else 'float32'; print(f'{d}|{t}')"') do (
 >> "2 - START GPU.bat" echo     set DEVICE=%%%%a
 >> "2 - START GPU.bat" echo     set DTYPE=%%%%b
 >> "2 - START GPU.bat" echo )
@@ -226,7 +226,7 @@ echo [8] Generazione script avvio...
 >> "2 - START.bat" echo set HUGGINGFACE_HUB_CACHE=%%~dp0huggingface_cache\hub
 >> "2 - START.bat" echo.
 >> "2 - START.bat" echo :: Rilevamento automatico GPU
->> "2 - START.bat" echo for /f "tokens=1,2 delims=^|" %%%%a in ('uv run python -c "import torch; d='cuda:0' if torch.cuda.is_available() else 'cpu'; t='bfloat16' if torch.cuda.is_available() and torch.cuda.get_device_capability(0)[0]>=8 else 'float16' if torch.cuda.is_available() else 'float32'; print(f'{d}|{t}')" 2^>nul') do (
+>> "2 - START.bat" echo for /f "tokens=1,2 delims=^|" %%%%a in ('uv run python -c "import torch; d='cuda:0' if torch.cuda.is_available() else 'cpu'; t='bfloat16' if torch.cuda.is_available() and torch.cuda.get_device_capability(0)[0]>=8 else 'float16' if torch.cuda.is_available() else 'float32'; print(f'{d}|{t}')"') do (
 >> "2 - START.bat" echo     set DEVICE=%%%%a
 >> "2 - START.bat" echo     set DTYPE=%%%%b
 >> "2 - START.bat" echo )
@@ -236,7 +236,7 @@ echo [8] Generazione script avvio...
 >> "2 - START.bat" echo :: Scegli modello in base alla VRAM (se GPU rilevata)
 >> "2 - START.bat" echo set MODEL=cv=Qwen/Qwen3-TTS-12Hz-0.6B-CustomVoice
 >> "2 - START.bat" echo if not "%%DEVICE%%"=="cpu" (
->> "2 - START.bat" echo     for /f "tokens=*" %%%%v in ('uv run python -c "import torch; v=torch.cuda.get_device_properties(0).total_memory//1024//1024; print('1.7B' if v>=8000 else '0.6B')" 2^>nul') do set MODEL_SIZE=%%%%v
+>> "2 - START.bat" echo     for /f "tokens=*" %%%%v in ('uv run python -c "import torch; v=torch.cuda.get_device_properties(0).total_memory//1024//1024; print('1.7B' if v>=8000 else '0.6B')"') do set MODEL_SIZE=%%%%v
 >> "2 - START.bat" echo     if "%%MODEL_SIZE%%"=="" set MODEL_SIZE=%MODEL_SIZE%
 >> "2 - START.bat" echo     set MODEL=cv=Qwen/Qwen3-TTS-12Hz-%%MODEL_SIZE%%-CustomVoice
 >> "2 - START.bat" echo )
