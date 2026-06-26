@@ -102,20 +102,16 @@ echo [5] Installazione PyTorch...
 if "%CUDA_VERSION%"=="cpu" goto :INSTALL_CPU_TORCH
 
 echo   Tentativo %CUDA_VERSION%...
-uv pip install torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/%CUDA_VERSION%
-if !errorlevel! equ 0 goto :TORCH_OK
+uv pip install torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/%CUDA_VERSION% && goto :TORCH_OK
 
 echo   Fallback cu124...
-uv pip install torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/cu124
-if !errorlevel! equ 0 goto :TORCH_OK
+uv pip install torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/cu124 && goto :TORCH_OK
 
 echo   Fallback cu121...
-uv pip install torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/cu121
-if !errorlevel! equ 0 goto :TORCH_OK
+uv pip install torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/cu121 && goto :TORCH_OK
 
 echo   Fallback cu118...
-uv pip install torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/cu118
-if !errorlevel! equ 0 goto :TORCH_OK
+uv pip install torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/cu118 && goto :TORCH_OK
 
 :INSTALL_CPU_TORCH
 echo   Versione CPU...
