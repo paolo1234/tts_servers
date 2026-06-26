@@ -1,0 +1,31 @@
+# Ambiente virtuale
+.venv/
+
+# Cache HuggingFace
+huggingface_cache/
+
+# Audio generati
+assets/audios/*.wav
+
+# Upload temporanei
+temp_uploaded/
+*.wav
+*.mp3
+*.ogg
+
+# Log
+*.log
+
+# Cache Python
+__pycache__/
+*.pyc
+*.pyo
+
+# uv binary (scaricato dall'installer, non da committare)
+uv.exe
+uvw.exe
+uvx.exe
+
+# Altri ambienti
+../Qwen3-TTS/
+../scripts/

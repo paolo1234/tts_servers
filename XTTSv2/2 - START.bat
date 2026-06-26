@@ -5,6 +5,7 @@ set HF_HOME=%~dp0huggingface_cache
 set HUGGINGFACE_HUB_CACHE=%~dp0huggingface_cache\hub
 set TRANSFORMERS_CACHE=%~dp0huggingface_cache\hub
 set HF_DATASETS_CACHE=%~dp0huggingface_cache\hub
+set PYTHONIOENCODING=utf-8
 
 echo ========================================
 echo  Avvio XTTSv2 Server...

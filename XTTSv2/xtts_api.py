@@ -4,21 +4,49 @@ import subprocess
 import sys
 import uuid
 import torch
+
+# Forza stdout/stderr in UTF-8 per evitare UnicodeEncodeError su Windows
+if hasattr(sys.stdout, 'reconfigure'):
+    sys.stdout.reconfigure(encoding='utf-8', errors='replace')
+if hasattr(sys.stderr, 'reconfigure'):
+    sys.stderr.reconfigure(encoding='utf-8', errors='replace')
 # Fix per PyTorch 2.6+: TTS carica checkpoint con weights_only=True di default
 _safe_load = torch.load
 torch.load = lambda *a, **kw: _safe_load(*a, **kw, weights_only=False)
-# Fix per PyTorch 2.6+: torchaudio usa di default torchcodec che fallisce su Windows senza FFmpeg globale
+# Fix per torchaudio 2.9+/XPU: sostituisce caricamento e info con soundfile
+# (torchaudio 2.11 usa esclusivamente torchcodec, ignorando il parametro backend)
+import soundfile as sf
 import torchaudio
-_original_load = torchaudio.load
-_original_info = torchaudio.info
-def _safe_torchaudio_load(filepath, *args, **kwargs):
-    kwargs['backend'] = 'soundfile'
-    return _original_load(filepath, *args, **kwargs)
-def _safe_torchaudio_info(filepath, *args, **kwargs):
-    kwargs['backend'] = 'soundfile'
-    return _original_info(filepath, *args, **kwargs)
-torchaudio.load = _safe_torchaudio_load
-torchaudio.info = _safe_torchaudio_info
+
+def _patched_torchaudio_load(filepath, *args, **kwargs):
+    """Carica audio con soundfile invece di torchcodec."""
+    audio_np, sr = sf.read(filepath)
+    # assicura float32 (TTS si aspetta Float, non Double)
+    if audio_np.dtype == 'float64':
+        audio_np = audio_np.astype('float32')
+    audio_t = torch.from_numpy(audio_np)
+    # soundfile restituisce (samples,) per mono o (samples, channels) per stereo
+    if audio_t.dim() == 1:
+        audio_t = audio_t.unsqueeze(0)  # -> (1, samples) formato channels_first
+    else:
+        audio_t = audio_t.T  # (samples, channels) -> (channels, samples)
+    return audio_t, int(sr)
+
+def _patched_torchaudio_info(filepath, *args, **kwargs):
+    """Info audio con soundfile invece di torchcodec."""
+    info = sf.info(filepath)
+    class AudioInfo:
+        sample_rate = info.samplerate
+        num_frames = info.frames
+        num_channels = info.channels
+        bits_per_sample = info.subtype_bits
+        encoding = info.subtype
+    return AudioInfo()
+
+if hasattr(torchaudio, 'load'):
+    torchaudio.load = _patched_torchaudio_load
+if hasattr(torchaudio, 'info'):
+    torchaudio.info = _patched_torchaudio_info
 
 from TTS.api import TTS
 from flask import Flask, request, send_file, jsonify, Response
@@ -183,7 +211,7 @@ def text_to_speech():
     print(f"\n[XTTSv2] Ricevuta richiesta /api/tts")
     print(f"  - Speaker: {speaker_wav}")
     print(f"  - Lingua: {language}")
-    print(f"  - Testo: {text[:50]}...")
+    print(f"  - Testo: {text[:50]!r}...")
 
     # 1. Verifica se è presente un file caricato multipart
     uploaded_file = request.files.get("speaker_file") or request.files.get("ref_audio")

@@ -142,9 +142,21 @@ if errorlevel 1 (
 echo   Fix compatibilita' transformers...
 uv pip install "transformers==4.38.2" >nul 2>&1
 
+echo.
+echo [7] Disinstallazione torchcodec (causa conflitti su Windows)...
+uv pip uninstall torchcodec -y 2>nul
+echo   Fatto
+
+echo.
+echo [8] Pulizia cache Python...
+if exist ".venv\Lib\site-packages\TTS\__pycache__" (
+    rmdir /s /q ".venv\Lib\site-packages\TTS\__pycache__" 2>nul
+)
+echo   Fatto
+
 :: ----- 6. VERIFICA REFERENCE WAV -----
 echo.
-echo [7] Verifica file audio...
+echo [9] Verifica file audio...
 set REF_OK=1
 for %%f in ("isabella_ref.wav" "giuseppe_ref.wav" "elsa_ref.wav" "diego_ref.wav") do (
     if not exist "%%~f" (
