@@ -267,6 +267,17 @@ def create_app(models_config: Dict[str, str], device: str = "cuda:0", dtype: str
 
     return app
 
+def get_lan_ip():
+    import socket
+    try:
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.connect(("8.8.8.8", 80))
+        ip = s.getsockname()[0]
+        s.close()
+        return ip
+    except Exception:
+        return "127.0.0.1"
+
 
 def main():
     parser = argparse.ArgumentParser(prog="qwen-tts-server", description="Qwen3-TTS Multi-Model API")
@@ -304,6 +315,14 @@ def main():
         models[name.strip()] = ckpt.strip()
 
     app = create_app(models_config=models, device=args.device, dtype=args.dtype, flash_attn=args.flash_attn)
+    
+    lan_ip = get_lan_ip()
+    print("=" * 45)
+    print("  Accesso Server:")
+    print(f"  Locale: http://127.0.0.1:{args.port}")
+    print(f"  Rete:   http://{lan_ip}:{args.port}")
+    print("=" * 45)
+    
     uvicorn.run(app, host=args.host, port=args.port)
 
 

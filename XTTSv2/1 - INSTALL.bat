@@ -132,11 +132,11 @@ goto :TORCH_OK
 echo   PyTorch installato
 
 echo.
-echo [6] Installazione TTS + Flask...
-uv pip install "TTS==0.22.0" Flask
+echo [6] Installazione TTS + Flask + CORS...
+uv pip install "TTS==0.22.0" Flask flask-cors
 if errorlevel 1 (
     echo   Tenta versione recente...
-    uv pip install TTS Flask
+    uv pip install TTS Flask flask-cors
     if errorlevel 1 (
         echo ERRORE: installazione TTS fallita
         pause
@@ -170,8 +170,6 @@ if not "%GPU_NAME%"=="" (
 echo.
 echo  Esegui: 2 - START.bat
 echo.
-echo  Server locale: http://localhost:8020
-echo  Endpoint: POST /api/tts
 echo.
 if !REF_OK!==0 (
  echo  Mancano file .wav di riferimento!

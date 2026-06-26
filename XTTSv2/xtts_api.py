@@ -9,8 +9,10 @@ _safe_load = torch.load
 torch.load = lambda *a, **kw: _safe_load(*a, **kw, weights_only=False)
 from TTS.api import TTS
 from flask import Flask, request, send_file, jsonify, Response
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)
 
 
 def _detect_gpu_info():
@@ -243,17 +245,20 @@ if __name__ == "__main__":
     if args.preload:
         get_xtts()
     try:
-        lan_ip = socket.gethostbyname(socket.gethostname())
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.connect(("8.8.8.8", 80))
+        lan_ip = s.getsockname()[0]
+        s.close()
     except Exception:
         lan_ip = "127.0.0.1"
     print("")
     print("=" * 45)
     print(f"  XTTSv2 Server PRONTO!")
     print(f"  Device: {device}")
-    print(f"  Locale:    http://localhost:{args.port}")
+    print(f"  Locale:    http://127.0.0.1:{args.port}")
     print(f"  LAN:       http://{lan_ip}:{args.port}")
     print(f"  Endpoint:  POST /api/tts")
     print("=" * 45)
-    print("  Per VibeCut usa URL: http://{lan_ip}:{args.port}")
+    print(f"  Per VibeCut usa URL: http://{lan_ip}:{args.port}")
     print("")
     app.run(host=args.host, port=args.port, debug=False)

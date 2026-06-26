@@ -208,7 +208,6 @@ echo [8] Generazione script avvio...
 >> "2 - START GPU.bat" echo if "%%DTYPE%%"=="" set DTYPE=%DTYPE%
 >> "2 - START GPU.bat" echo.
 >> "2 - START GPU.bat" echo echo [Qwen3-TTS] Device: %%DEVICE%% ^(%%DTYPE%%^)
->> "2 - START GPU.bat" echo echo [Qwen3-TTS] Server: http://0.0.0.0:8000
 >> "2 - START GPU.bat" echo.
 >> "2 - START GPU.bat" echo uv run python -m qwen_tts.server --models "cv=Qwen/Qwen3-TTS-12Hz-%MODEL_SIZE%-CustomVoice" --host 0.0.0.0 --port 8000 --device %%DEVICE%% --dtype %%DTYPE%% --%FLASH_ATTN%
 >> "2 - START GPU.bat" echo pause
@@ -221,7 +220,6 @@ echo [8] Generazione script avvio...
 >> "2 - START CPU.bat" echo set HUGGINGFACE_HUB_CACHE=%%~dp0huggingface_cache\hub
 >> "2 - START CPU.bat" echo.
 >> "2 - START CPU.bat" echo echo [Qwen3-TTS] Device: cpu
->> "2 - START CPU.bat" echo echo [Qwen3-TTS] Server: http://0.0.0.0:8000
 >> "2 - START CPU.bat" echo echo [Qwen3-TTS] Modello leggero 0.6B per CPU
 >> "2 - START CPU.bat" echo.
 >> "2 - START CPU.bat" echo uv run python -m qwen_tts.server --models "cv=Qwen/Qwen3-TTS-12Hz-0.6B-CustomVoice" --host 0.0.0.0 --port 8000 --device cpu --dtype float32 --no-flash-attn
@@ -251,7 +249,6 @@ echo [8] Generazione script avvio...
 >> "2 - START.bat" echo )
 >> "2 - START.bat" echo.
 >> "2 - START.bat" echo echo [Qwen3-TTS] Device: %%DEVICE%% ^(%%DTYPE%%^)  Modello: %%MODEL%%
->> "2 - START.bat" echo echo [Qwen3-TTS] Server: http://0.0.0.0:8000
 >> "2 - START.bat" echo.
 >> "2 - START.bat" echo uv run python -m qwen_tts.server --models "%%MODEL%%" --host 0.0.0.0 --port 8000 --device %%DEVICE%% --dtype %%DTYPE%% --%FLASH_ATTN%
 >> "2 - START.bat" echo pause
@@ -269,7 +266,6 @@ echo  GPU: %GPU_NAME%
 echo  Device: %DEVICE%  -  Dtype: %DTYPE%
 echo  Flash Attn: %FLASH_ATTN%  -  Modello: %MODEL_SIZE%
 echo.
-echo  Server: http://localhost:8000
 echo.
 echo  Il modello (~5-7GB) si scarica al primo avvio.
 echo.

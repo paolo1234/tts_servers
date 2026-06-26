@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TTS Servers - Dashboard di Test</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-color: #f8fafc;
+            --primary: #3b82f6;
+            --success: #10b981;
+            --error: #ef4444;
+            --warning: #f59e0b;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            background-color: var(--card-bg);
+            padding: 2.5rem;
+            border-radius: 1rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+            max-width: 600px;
+            width: 100%;
+        }
+
+        h1 {
+            margin-top: 0;
+            margin-bottom: 1.5rem;
+            font-size: 1.75rem;
+            text-align: center;
+            color: var(--primary);
+        }
+
+        .server-card {
+            background-color: rgba(255,255,255,0.05);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            transition: transform 0.2s ease;
+        }
+
+        .server-card:hover {
+            transform: translateY(-2px);
+            background-color: rgba(255,255,255,0.08);
+        }
+
+        .header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        h2 {
+            margin: 0;
+            font-size: 1.25rem;
+        }
+
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 999px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            background-color: var(--warning);
+            color: #fff;
+        }
+
+        .status-badge.online { background-color: var(--success); }
+        .status-badge.offline { background-color: var(--error); }
+        .status-badge.checking { background-color: var(--primary); }
+
+        .btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            width: 100%;
+        }
+
+        .btn:hover {
+            background-color: #2563eb;
+        }
+
+        .btn:disabled {
+            background-color: #475569;
+            cursor: not-allowed;
+        }
+
+        .log {
+            margin-top: 1rem;
+            font-family: monospace;
+            font-size: 0.85rem;
+            background: rgba(0,0,0,0.3);
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            min-height: 40px;
+            word-wrap: break-word;
+        }
+
+        .ip-input {
+            width: calc(100% - 1rem);
+            padding: 0.5rem;
+            margin-bottom: 1rem;
+            border-radius: 0.5rem;
+            border: 1px solid #475569;
+            background: #0f172a;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>TTS Servers Dashboard</h1>
+    <p style="text-align: center; color: #94a3b8; margin-bottom: 2rem;">
+        Usa questa pagina per verificare se i server locali sono accesi e pronti a ricevere richieste.
+    </p>
+
+    <!-- Qwen3-TTS -->
+    <div class="server-card">
+        <div class="header-row">
+            <h2>Qwen3-TTS</h2>
+            <span class="status-badge" id="qwen-badge">Sconosciuto</span>
+        </div>
+        <input type="text" id="qwen-url" class="ip-input" value="http://127.0.0.1:8000">
+        <button class="btn" id="btn-qwen" onclick="testServer('qwen')">Test Qwen3-TTS</button>
+        <div class="log" id="qwen-log">In attesa del test...</div>
+    </div>
+
+    <!-- XTTSv2 -->
+    <div class="server-card">
+        <div class="header-row">
+            <h2>XTTSv2</h2>
+            <span class="status-badge" id="xtts-badge">Sconosciuto</span>
+        </div>
+        <input type="text" id="xtts-url" class="ip-input" value="http://127.0.0.1:8020">
+        <button class="btn" id="btn-xtts" onclick="testServer('xtts')">Test XTTSv2</button>
+        <div class="log" id="xtts-log">In attesa del test...</div>
+    </div>
+</div>
+
+<script>
+    async function testServer(serverType) {
+        const btn = document.getElementById(`btn-${serverType}`);
+        const badge = document.getElementById(`${serverType}-badge`);
+        const logBox = document.getElementById(`${serverType}-log`);
+        const baseUrl = document.getElementById(`${serverType}-url`).value.replace(/\/+$/, "");
+
+        // Set UI to checking state
+        btn.disabled = true;
+        badge.className = "status-badge checking";
+        badge.innerText = "Verifica...";
+        logBox.innerText = `Chiamata a ${baseUrl}/...`;
+
+        try {
+            // Entrambi espongono un endpoint /health (in XTTS l'ho aggiunto, in Qwen già c'era)
+            // Wait, XTTSv2 espone /health ? Let me check. In xtts_api.py c'è @app.route("/health")
+            let url = `${baseUrl}/health`;
+            
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 3000); // 3 seconds timeout
+
+            const response = await fetch(url, { 
+                method: "GET",
+                signal: controller.signal,
+                headers: { "Accept": "application/json" }
+            });
+
+            clearTimeout(timeoutId);
+
+            if (response.ok) {
+                badge.className = "status-badge online";
+                badge.innerText = "Online";
+                
+                let data = "OK";
+                try {
+                    const json = await response.json();
+                    data = JSON.stringify(json);
+                } catch(e) {
+                    data = await response.text();
+                }
+                
+                logBox.innerText = `Risposta 200 OK:\n${data}`;
+                logBox.style.color = "#10b981";
+            } else {
+                badge.className = "status-badge offline";
+                badge.innerText = "Errore";
+                logBox.innerText = `Errore HTTP ${response.status}: ${response.statusText}`;
+                logBox.style.color = "#ef4444";
+            }
+        } catch (error) {
+            badge.className = "status-badge offline";
+            badge.innerText = "Offline";
+            logBox.innerText = `Impossibile connettersi a ${baseUrl}\nAssicurati che il server sia avviato e il file .bat non sia bloccato.`;
+            logBox.style.color = "#ef4444";
+        } finally {
+            btn.disabled = false;
+        }
+    }
+</script>
+
+</body>
+</html>
