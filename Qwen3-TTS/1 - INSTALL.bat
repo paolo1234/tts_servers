@@ -11,6 +11,15 @@ echo   Auto-detection NVIDIA serie
 echo ========================================
 echo.
 
+set GPU_NAME=
+set GPU_SERIES=NONE
+set VRAM_MB=0
+set DEVICE=cpu
+set DTYPE=float32
+set FLASH_ATTN=no-flash-attn
+set CUDA_VERSION=cpu
+set MODEL_SIZE=0.6B
+
 :: ----- 1. SCARICA uv -----
 if not exist "uv.exe" (
     echo [1] Download uv...
@@ -257,8 +266,8 @@ echo  CPU:             2 - START CPU.bat
 echo  AUTO:            2 - START.bat
 echo.
 echo  GPU: %GPU_NAME%
-echo  Device: %DEVICE%  |  Dtype: %DTYPE%
-echo  Flash Attn: %FLASH_ATTN%  |  Modello: %MODEL_SIZE%
+echo  Device: %DEVICE%  -  Dtype: %DTYPE%
+echo  Flash Attn: %FLASH_ATTN%  -  Modello: %MODEL_SIZE%
 echo.
 echo  Server: http://localhost:8000
 echo.
