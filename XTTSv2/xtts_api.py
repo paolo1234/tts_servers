@@ -165,6 +165,12 @@ def text_to_speech():
         return jsonify({"error": "Missing 'text' field"}), 400
 
     speaker_wav = data.get("speaker_wav") or data.get("speaker", DEFAULT_SPEAKER)
+    language = data.get("language", "it")
+
+    print(f"\n[XTTSv2] Ricevuta richiesta /api/tts")
+    print(f"  - Speaker: {speaker_wav}")
+    print(f"  - Lingua: {language}")
+    print(f"  - Testo: {text[:50]}...")
 
     # 1. Verifica se è presente un file caricato multipart
     uploaded_file = request.files.get("speaker_file") or request.files.get("ref_audio")
