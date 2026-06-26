@@ -1,0 +1,207 @@
+===========================================================================
+ PROMPT / CONFIG: Qwen3-TTS come Provider TTS per Progetto Esterno
+===========================================================================
+
+Questo file contiene le istruzioni per integrare Qwen3-TTS come
+provider TTS in frontend come SillyTavern, Open WebUI, o altro.
+
+===========================================================================
+ 1. CONFIGURAZIONE GENERALE (per qualsiasi progetto)
+===========================================================================
+
+Se il progetto supporta provider TTS custom via API REST:
+
+  URL Base:    http://SERVER_IP:8000
+  Formato:     REST API (JSON/form-data)
+  Output:      WAV audio (16-bit PCM, sample rate variabile ~24kHz)
+
+Per ogni richiesta, invia POST a uno degli endpoint con parametro
+"model=NOME" per selezionare il modello.
+
+===========================================================================
+ 2. SILLYTAVERN - Esternal API (Silero TTS / Custom)
+===========================================================================
+
+In SillyTavern, vai su:
+  RAGNATELA (Spider Web) > TTS > TTS Provider > "External API: Silero"
+
+Configura:
+
+  Silero API URL:        http://localhost:8000/v1/tts/custom-voice
+  Silero API Key:        (lascia vuoto)
+
+  Silero Voice Map:      default_speaker
+
+  Invia extra JSON body:
+  {
+    "model": "cv",
+    "speaker": "aldobaglio",
+    "instruct": "Voce calda e naturale, italiana, espressiva ma non esagerata"
+  }
+
+NOTA: SillyTavern usa query per Silero. Se vuoi più controllo,
+usa il plugin "TTS Generator" con Custom endpoint.
+
+===========================================================================
+ 3. OPEN WEBUI - Configurazione TTS
+===========================================================================
+
+In Open WebUI:
+  Impostazioni > Audio > Text-to-Speech
+
+  TTS Provider:          Custom
+  TTS API URL:           http://localhost:8000/v1/tts/custom-voice
+  TTS API Key:           (lascia vuoto)
+  Default Voice:         aldobaglio
+  Extra Headers:         {}
+  Extra Body Params:     {"model": "cv", "instruct": "Voce italiana naturale"}
+
+===========================================================================
+ 4. ANYTHING LLM
+===========================================================================
+
+  Settings > TTS Provider > Custom
+  Endpoint:              http://localhost:8000/v1/tts/custom-voice
+  Model field:           model=cv
+  Voice field:           speaker=aldobaglio
+
+===========================================================================
+ 5. COMANDO GENERALE CURL (test)
+===========================================================================
+
+  # CustomVoice con instruct stile
+  curl -X POST http://localhost:8000/v1/tts/custom-voice \
+    -F "model=cv" \
+    -F "text=Benvenuti nel mio video! Oggi vediamo una cosa incredibile." \
+    -F "speaker=default_speaker" \
+    -F "instruct=Voce giovane, entusiasta, stile YouTuber italiano, ritmo vivace" \
+    -F "language=Auto" \
+    -o output.wav
+
+  # VoiceDesign - nessuno speaker necessario
+  curl -X POST http://localhost:8000/v1/tts/voice-design \
+    -F "model=vd" \
+    -F "text=Esistono voci che non hanno mai parlato, fino ad ora." \
+    -F "instruct=Voce femminile matura, calda, vellutata, da doppiaggio professionale, italiana" \
+    -F "language=Auto" \
+    -o output.wav
+
+  # Modello italiano fine-tune
+  curl -X POST http://localhost:8000/v1/tts/custom-voice \
+    -F "model=it" \
+    -F "speaker=aldobaglio" \
+    -F "text=Ciao a tutti ragazzi, bentrovati sul canale!" \
+    -F "instruct=Voce spontanea, come un amico che parla, con accento italiano autentico" \
+    -F "language=Auto" \
+    -o italiano.wav
+
+===========================================================================
+ 6. ISTRUZIONI PER L'INTEGRAZIONE DIRETTA (esempio Python)
+===========================================================================
+
+  from typing import Optional
+  import requests
+
+  class Qwen3TTSProvider:
+      """Provider TTS per Qwen3-TTS API."""
+      
+      def __init__(self, base_url: str = "http://localhost:8000"):
+          self.base_url = base_url.rstrip("/")
+      
+      def get_models(self) -> dict:
+          """Lista modelli disponibili."""
+          r = requests.get(f"{self.base_url}/v1/models")
+          r.raise_for_status()
+          return r.json()
+      
+      def custom_voice(self, text: str, speaker: str = None,
+                       model: str = None, instruct: str = None,
+                       language: str = "Auto") -> bytes:
+          """Sintetizza con voce predefinita."""
+          data = {"text": text, "language": language}
+          if speaker:  data["speaker"]  = speaker
+          if model:    data["model"]    = model
+          if instruct: data["instruct"] = instruct
+          r = requests.post(f"{self.base_url}/v1/tts/custom-voice", data=data)
+          r.raise_for_status()
+          return r.content
+      
+      def voice_design(self, text: str, instruct: str,
+                       model: str = None, language: str = "Auto") -> bytes:
+          """Genera voce da descrizione."""
+          data = {"text": text, "instruct": instruct, "language": language}
+          if model: data["model"] = model
+          r = requests.post(f"{self.base_url}/v1/tts/voice-design", data=data)
+          r.raise_for_status()
+          return r.content
+      
+      def voice_clone(self, text: str, ref_audio: bytes,
+                      model: str = None, language: str = "Auto") -> bytes:
+          """Clona voce da audio."""
+          files = {"ref_audio": ("ref.wav", ref_audio, "audio/wav")}
+          data = {"text": text, "language": language}
+          if model: data["model"] = model
+          r = requests.post(f"{self.base_url}/v1/tts/voice-clone",
+                          data=data, files=files)
+          r.raise_for_status()
+          return r.content
+      
+      def health(self) -> dict:
+          r = requests.get(f"{self.base_url}/health")
+          r.raise_for_status()
+          return r.json()
+
+  # Esempio d'uso:
+  tts = Qwen3TTSProvider("http://192.168.1.100:8000")
+  audio = tts.custom_voice(
+      text="Ciao a tutti, oggi parliamo di intelligenza artificiale!",
+      model="cv",
+      instruct="Voce entusiasta, veloce, stile YouTuber"
+  )
+  with open("output.wav", "wb") as f:
+      f.write(audio)
+
+===========================================================================
+ 7. ESEMPI DI INSTRUCT PER VOCI NATURALI ITALIANE
+===========================================================================
+
+  STILE              | INSTRUCT
+  -------------------|-------------------------------------------------------
+  YouTuber italiano  | Voce maschile giovane, ritmo vivace, entusiasta,
+                     | come un creator di contenuti italiano
+  TikTok femminile   | Voce femminile squillante, giovanile, energica,
+                     | stile TikTok, ritmo sostenuto
+  Narratore epico    | Voce profonda, solenne, da narratore di documentario,
+                     | tono grave, ogni parola scandita
+  Audiobook femminile| Voce femminile morbida, calda, vellutata, rilassante,
+                     | da audiolibro o meditazione guidata
+  Professionale      | Voce chiara, scandita, autorevole, da speaker
+                     | professionista o annunciatore
+  Amichevole         | Voce calda, accogliente, come un amico che ti parla,
+                     | tono rilassato e confidenziale
+  Drammatico         | Voce cupa, lenta, carica di emozione, da scena
+                     | drammatica o trailer
+  Comico             | Voce allegra, con intonazione variabile, leggera,
+                     | spiritosa, come un comico
+  Vecchio saggio     | Voce maschile anziana, roca, saggia, lenta e
+                     | pacata, con esperienza
+
+  SUGGERIMENTO: Aggiungi "italiano" o "italiana" nell'instruct per
+  forzare accento italiano nei modelli multilingua.
+
+===========================================================================
+ 8. QUICK START
+===========================================================================
+
+  1. Avvia server:
+     python -m qwen_tts.server --models "cv=Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice" --host 0.0.0.0 --port 8000 --device cpu --dtype float32 --no-flash-attn
+
+  2. Verifica:
+     curl http://localhost:8000/health
+
+  3. Prova:
+     curl -X POST http://localhost:8000/v1/tts/custom-voice -F "text=Test vocale" -F "model=cv" -o test.wav
+
+  4. Configura il tuo frontend con URL http://IP_SERVER:8000
+
+===========================================================================
