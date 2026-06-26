@@ -242,8 +242,6 @@ if __name__ == "__main__":
     parser.add_argument("--port", type=int, default=8020)
     parser.add_argument("--preload", action="store_true", help="Precarica XTTS all'avvio")
     args = parser.parse_args()
-    if args.preload:
-        get_xtts()
     try:
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         s.connect(("8.8.8.8", 80))
@@ -253,12 +251,16 @@ if __name__ == "__main__":
         lan_ip = "127.0.0.1"
     print("")
     print("=" * 45)
-    print(f"  XTTSv2 Server PRONTO!")
+    print(f"  XTTSv2 Server In Avvio...")
     print(f"  Device: {device}")
     print(f"  Locale:    http://127.0.0.1:{args.port}")
     print(f"  LAN:       http://{lan_ip}:{args.port}")
     print(f"  Endpoint:  POST /api/tts")
     print("=" * 45)
     print(f"  Per VibeCut usa URL: http://{lan_ip}:{args.port}")
+    print("")
+
+    if args.preload:
+        get_xtts()
     print("")
     app.run(host=args.host, port=args.port, debug=False)

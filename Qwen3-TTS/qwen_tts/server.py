@@ -307,6 +307,13 @@ def main():
     print(f"  PyTorch: {torch.__version__}")
     print("=" * 45)
 
+    lan_ip = get_lan_ip()
+    print("=" * 45)
+    print("  Accesso Server:")
+    print(f"  Locale: http://127.0.0.1:{args.port}")
+    print(f"  Rete:   http://{lan_ip}:{args.port}")
+    print("=" * 45)
+
     models = {}
     for pair in args.models.split(","):
         if "=" not in pair:
@@ -315,13 +322,6 @@ def main():
         models[name.strip()] = ckpt.strip()
 
     app = create_app(models_config=models, device=args.device, dtype=args.dtype, flash_attn=args.flash_attn)
-    
-    lan_ip = get_lan_ip()
-    print("=" * 45)
-    print("  Accesso Server:")
-    print(f"  Locale: http://127.0.0.1:{args.port}")
-    print(f"  Rete:   http://{lan_ip}:{args.port}")
-    print("=" * 45)
     
     uvicorn.run(app, host=args.host, port=args.port)
 
