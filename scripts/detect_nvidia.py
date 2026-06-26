@@ -66,7 +66,14 @@ def get_recommendations(gpu_info):
     if cc_major >= 8:
         dtype = "bfloat16"
         flash_attn = True
-        series = "RTX30PLUS"
+        if "RTX 50" in name:
+            series = "RTX50"
+        elif "RTX 40" in name:
+            series = "RTX40"
+        elif "RTX 30" in name:
+            series = "RTX30"
+        else:
+            series = "RTX30PLUS"
     elif cc_major == 7:
         dtype = "float16"
         flash_attn = False

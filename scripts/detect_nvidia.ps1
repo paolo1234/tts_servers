@@ -16,7 +16,7 @@ $DEFAULT = @{
 
 try {
     $nvidia = Get-Command "nvidia-smi" -ErrorAction Stop
-    $output = & nvidia-smi --query-gpu=name,compute_cap,memory.total,driver_version --format=csv,noheader,nounits 2>$null
+    $output = @(& nvidia-smi --query-gpu=name,compute_cap,memory.total,driver_version --format=csv,noheader,nounits 2>$null)
     if (-not $output) { throw "no output" }
     $parts = $output[0] -split ',' | ForEach-Object { $_.Trim() }
     $gpuName = $parts[0]
@@ -37,7 +37,10 @@ try {
         $dtype = "bfloat16"
         $flashAttn = $true
         $cudaVer = "cu124"
-        $series = "RTX30PLUS"
+        if ($gpuName -match "RTX 50") { $series = "RTX50" }
+        elseif ($gpuName -match "RTX 40") { $series = "RTX40" }
+        elseif ($gpuName -match "RTX 30") { $series = "RTX30" }
+        else { $series = "RTX30PLUS" }
     } elseif ($ccMajor -eq 7) {
         $dtype = "float16"
         $flashAttn = $false

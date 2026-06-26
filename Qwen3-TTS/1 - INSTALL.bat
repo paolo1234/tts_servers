@@ -184,74 +184,68 @@ echo.
 echo [8] Generazione script avvio...
 
 :: GPU START script (auto-detection runtime)
-(
-echo @echo off
-echo title Qwen3-TTS Server
-echo cd /d "%%~dp0"
-echo set HF_HOME=%%~dp0huggingface_cache
-echo set HUGGINGFACE_HUB_CACHE=%%~dp0huggingface_cache\hub
-echo.
-echo :: Auto-detect GPU al runtime
-echo for /f "tokens=1,2 delims=^|" %%%%a in ('uv run python -c "import torch; d='cuda:0' if torch.cuda.is_available() else 'cpu'; t='bfloat16' if torch.cuda.is_available() and torch.cuda.get_device_capability(0)[0]^>=8 else 'float16' if torch.cuda.is_available() else 'float32'; print(f'{d}^{|{t}')" 2^^^^nul') do (
-echo     set DEVICE=%%%%a
-echo     set DTYPE=%%%%b
-echo )
-echo if "%%DEVICE%%"=="" set DEVICE=%DEVICE%
-echo if "%%DTYPE%%"=="" set DTYPE=%DTYPE%
-echo.
-echo echo [Qwen3-TTS] Device: %%DEVICE%% ^(%%DTYPE%%^)
-echo echo [Qwen3-TTS] Server: http://0.0.0.0:8000
-echo.
-echo uv run python -m qwen_tts.server --models "cv=Qwen/Qwen3-TTS-12Hz-%MODEL_SIZE%-CustomVoice" --host 0.0.0.0 --port 8000 --device %%DEVICE%% --dtype %%DTYPE%% --%FLASH_ATTN%
-echo pause
-) > "2 - START GPU.bat"
+> "2 - START GPU.bat" echo @echo off
+>> "2 - START GPU.bat" echo title Qwen3-TTS Server
+>> "2 - START GPU.bat" echo cd /d "%%~dp0"
+>> "2 - START GPU.bat" echo set HF_HOME=%%~dp0huggingface_cache
+>> "2 - START GPU.bat" echo set HUGGINGFACE_HUB_CACHE=%%~dp0huggingface_cache\hub
+>> "2 - START GPU.bat" echo.
+>> "2 - START GPU.bat" echo :: Auto-detect GPU al runtime
+>> "2 - START GPU.bat" echo for /f "tokens=1,2 delims=^|" %%%%a in ('uv run python -c "import torch; d='cuda:0' if torch.cuda.is_available() else 'cpu'; t='bfloat16' if torch.cuda.is_available() and torch.cuda.get_device_capability(0)[0]>=8 else 'float16' if torch.cuda.is_available() else 'float32'; print(f'{d}|{t}')" 2^>nul') do (
+>> "2 - START GPU.bat" echo     set DEVICE=%%%%a
+>> "2 - START GPU.bat" echo     set DTYPE=%%%%b
+>> "2 - START GPU.bat" echo )
+>> "2 - START GPU.bat" echo if "%%DEVICE%%"=="" set DEVICE=%DEVICE%
+>> "2 - START GPU.bat" echo if "%%DTYPE%%"=="" set DTYPE=%DTYPE%
+>> "2 - START GPU.bat" echo.
+>> "2 - START GPU.bat" echo echo [Qwen3-TTS] Device: %%DEVICE%% ^(%%DTYPE%%^)
+>> "2 - START GPU.bat" echo echo [Qwen3-TTS] Server: http://0.0.0.0:8000
+>> "2 - START GPU.bat" echo.
+>> "2 - START GPU.bat" echo uv run python -m qwen_tts.server --models "cv=Qwen/Qwen3-TTS-12Hz-%MODEL_SIZE%-CustomVoice" --host 0.0.0.0 --port 8000 --device %%DEVICE%% --dtype %%DTYPE%% --%FLASH_ATTN%
+>> "2 - START GPU.bat" echo pause
 
 :: CPU START script (forced CPU)
-(
-echo @echo off
-echo title Qwen3-TTS Server ^(CPU^)
-echo cd /d "%%~dp0"
-echo set HF_HOME=%%~dp0huggingface_cache
-echo set HUGGINGFACE_HUB_CACHE=%%~dp0huggingface_cache\hub
-echo.
-echo echo [Qwen3-TTS] Device: cpu
-echo echo [Qwen3-TTS] Server: http://0.0.0.0:8000
-echo echo [Qwen3-TTS] Modello leggero 0.6B per CPU
-echo.
-echo uv run python -m qwen_tts.server --models "cv=Qwen/Qwen3-TTS-12Hz-0.6B-CustomVoice" --host 0.0.0.0 --port 8000 --device cpu --dtype float32 --no-flash-attn
-echo pause
-) > "2 - START CPU.bat"
+> "2 - START CPU.bat" echo @echo off
+>> "2 - START CPU.bat" echo title Qwen3-TTS Server ^(CPU^)
+>> "2 - START CPU.bat" echo cd /d "%%~dp0"
+>> "2 - START CPU.bat" echo set HF_HOME=%%~dp0huggingface_cache
+>> "2 - START CPU.bat" echo set HUGGINGFACE_HUB_CACHE=%%~dp0huggingface_cache\hub
+>> "2 - START CPU.bat" echo.
+>> "2 - START CPU.bat" echo echo [Qwen3-TTS] Device: cpu
+>> "2 - START CPU.bat" echo echo [Qwen3-TTS] Server: http://0.0.0.0:8000
+>> "2 - START CPU.bat" echo echo [Qwen3-TTS] Modello leggero 0.6B per CPU
+>> "2 - START CPU.bat" echo.
+>> "2 - START CPU.bat" echo uv run python -m qwen_tts.server --models "cv=Qwen/Qwen3-TTS-12Hz-0.6B-CustomVoice" --host 0.0.0.0 --port 8000 --device cpu --dtype float32 --no-flash-attn
+>> "2 - START CPU.bat" echo pause
 
 :: AUTO START script (smart auto-detect)
-(
-echo @echo off
-echo title Qwen3-TTS Server ^(Auto^)
-echo cd /d "%%~dp0"
-echo set HF_HOME=%%~dp0huggingface_cache
-echo set HUGGINGFACE_HUB_CACHE=%%~dp0huggingface_cache\hub
-echo.
-echo :: Rilevamento automatico GPU
-echo for /f "tokens=1,2 delims=^|" %%%%a in ('uv run python -c "import torch; d='cuda:0' if torch.cuda.is_available() else 'cpu'; t='bfloat16' if torch.cuda.is_available() and torch.cuda.get_device_capability(0)[0]^>=8 else 'float16' if torch.cuda.is_available() else 'float32'; print(f'{d}^{|{t}')" 2^^^^nul') do (
-echo     set DEVICE=%%%%a
-echo     set DTYPE=%%%%b
-echo )
-echo if "%%DEVICE%%"=="" set DEVICE=cpu
-echo if "%%DTYPE%%"=="" set DTYPE=float32
-echo.
-echo :: Scegli modello in base alla VRAM (se GPU rilevata)
-echo set MODEL=cv=Qwen/Qwen3-TTS-12Hz-0.6B-CustomVoice
-echo if not "%%DEVICE%%"=="cpu" (
-echo     for /f "tokens=*" %%%%v in ('uv run python -c "import torch; v=torch.cuda.get_device_properties(0).total_memory//1024//1024; print('1.7B' if v^>=8000 else '0.6B')" 2^^^^nul') do set MODEL_SIZE=%%%%v
-echo     if "%%MODEL_SIZE%%"=="" set MODEL_SIZE=%MODEL_SIZE%
-echo     set MODEL=cv=Qwen/Qwen3-TTS-12Hz-%%MODEL_SIZE%%-CustomVoice
-echo )
-echo.
-echo echo [Qwen3-TTS] Device: %%DEVICE%% ^(%%DTYPE%%^)  Modello: %%MODEL%%
-echo echo [Qwen3-TTS] Server: http://0.0.0.0:8000
-echo.
-echo uv run python -m qwen_tts.server --models "%%MODEL%%" --host 0.0.0.0 --port 8000 --device %%DEVICE%% --dtype %%DTYPE%% --%FLASH_ATTN%
-echo pause
-) > "2 - START.bat"
+> "2 - START.bat" echo @echo off
+>> "2 - START.bat" echo title Qwen3-TTS Server ^(Auto^)
+>> "2 - START.bat" echo cd /d "%%~dp0"
+>> "2 - START.bat" echo set HF_HOME=%%~dp0huggingface_cache
+>> "2 - START.bat" echo set HUGGINGFACE_HUB_CACHE=%%~dp0huggingface_cache\hub
+>> "2 - START.bat" echo.
+>> "2 - START.bat" echo :: Rilevamento automatico GPU
+>> "2 - START.bat" echo for /f "tokens=1,2 delims=^|" %%%%a in ('uv run python -c "import torch; d='cuda:0' if torch.cuda.is_available() else 'cpu'; t='bfloat16' if torch.cuda.is_available() and torch.cuda.get_device_capability(0)[0]>=8 else 'float16' if torch.cuda.is_available() else 'float32'; print(f'{d}|{t}')" 2^>nul') do (
+>> "2 - START.bat" echo     set DEVICE=%%%%a
+>> "2 - START.bat" echo     set DTYPE=%%%%b
+>> "2 - START.bat" echo )
+>> "2 - START.bat" echo if "%%DEVICE%%"=="" set DEVICE=cpu
+>> "2 - START.bat" echo if "%%DTYPE%%"=="" set DTYPE=float32
+>> "2 - START.bat" echo.
+>> "2 - START.bat" echo :: Scegli modello in base alla VRAM (se GPU rilevata)
+>> "2 - START.bat" echo set MODEL=cv=Qwen/Qwen3-TTS-12Hz-0.6B-CustomVoice
+>> "2 - START.bat" echo if not "%%DEVICE%%"=="cpu" (
+>> "2 - START.bat" echo     for /f "tokens=*" %%%%v in ('uv run python -c "import torch; v=torch.cuda.get_device_properties(0).total_memory//1024//1024; print('1.7B' if v>=8000 else '0.6B')" 2^>nul') do set MODEL_SIZE=%%%%v
+>> "2 - START.bat" echo     if "%%MODEL_SIZE%%"=="" set MODEL_SIZE=%MODEL_SIZE%
+>> "2 - START.bat" echo     set MODEL=cv=Qwen/Qwen3-TTS-12Hz-%%MODEL_SIZE%%-CustomVoice
+>> "2 - START.bat" echo )
+>> "2 - START.bat" echo.
+>> "2 - START.bat" echo echo [Qwen3-TTS] Device: %%DEVICE%% ^(%%DTYPE%%^)  Modello: %%MODEL%%
+>> "2 - START.bat" echo echo [Qwen3-TTS] Server: http://0.0.0.0:8000
+>> "2 - START.bat" echo.
+>> "2 - START.bat" echo uv run python -m qwen_tts.server --models "%%MODEL%%" --host 0.0.0.0 --port 8000 --device %%DEVICE%% --dtype %%DTYPE%% --%FLASH_ATTN%
+>> "2 - START.bat" echo pause
 
 cls
 echo ========================================
