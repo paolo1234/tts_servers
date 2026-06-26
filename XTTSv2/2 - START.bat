@@ -22,7 +22,7 @@ if not exist ".venv\Scripts\python.exe" (
 .venv\Scripts\python.exe -c "import torch" 2>nul
 if errorlevel 1 (
     echo [ERRORE CRITICO] PyTorch non e' stato installato correttamente.
-    echo L'installazione precedente ("1 - INSTALL.bat") e' fallita.
+    echo L'installazione precedente "1 - INSTALL.bat" e' fallita.
     echo Riprova ad eseguire "1 - INSTALL.bat" assicurandoti di avere connessione internet.
     pause
     exit /b 1
