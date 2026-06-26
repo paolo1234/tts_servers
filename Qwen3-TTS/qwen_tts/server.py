@@ -204,8 +204,13 @@ def create_app(models_config: Dict[str, str], device: str = "cuda:0", dtype: str
         return info
 
     @app.post("/v1/tts/custom-voice")
-    async def custom_voice(text=Form(...), speaker=Form(None), model=Form(None), language="Auto", instruct=None,
+    async def custom_voice(text=Form(...), speaker=Form(None), model=Form(None), language="Auto", instruct=Form(None),
                            max_new_tokens=None, temperature=None, top_k=None, top_p=None, repetition_penalty=None):
+        print(f"\n[Qwen3-TTS] Ricevuta richiesta /custom-voice")
+        print(f"  - Modello richiesto: {model}")
+        print(f"  - Speaker: {speaker}")
+        print(f"  - Instruct: {instruct}")
+        print(f"  - Testo: {text[:50]}...")
         m = _get_model(model)
         if m["type"] not in ("custom_voice",):
             raise HTTPException(400, f"Modello '{model or list(loaded.keys())[0]}' non supporta custom-voice")
@@ -227,6 +232,10 @@ def create_app(models_config: Dict[str, str], device: str = "cuda:0", dtype: str
     @app.post("/v1/tts/voice-design")
     async def voice_design(text=Form(...), instruct=Form(...), model=Form(None), language="Auto",
                            max_new_tokens=None, temperature=None, top_k=None, top_p=None, repetition_penalty=None):
+        print(f"\n[Qwen3-TTS] Ricevuta richiesta /voice-design")
+        print(f"  - Modello richiesto: {model}")
+        print(f"  - Instruct: {instruct}")
+        print(f"  - Testo: {text[:50]}...")
         m = _get_model(model)
         if m["type"] != "voice_design":
             raise HTTPException(400, f"Modello '{model or list(loaded.keys())[0]}' non supporta voice-design")
@@ -245,8 +254,13 @@ def create_app(models_config: Dict[str, str], device: str = "cuda:0", dtype: str
     @app.post("/v1/tts/voice-clone")
     async def voice_clone(text=Form(...), model=Form(None), language="Auto",
                           ref_audio=None, ref_audio_url=None, ref_audio_base64=None,
-                          ref_text=None, x_vector_only_mode=False,
+                          ref_text=Form(None), x_vector_only_mode=False,
                           max_new_tokens=None, temperature=None, top_k=None, top_p=None, repetition_penalty=None):
+        print(f"\n[Qwen3-TTS] Ricevuta richiesta /voice-clone")
+        print(f"  - Modello richiesto: {model}")
+        print(f"  - Ref Text: {ref_text}")
+        print(f"  - Audio Ref: fornito {'SI' if any([ref_audio, ref_audio_url, ref_audio_base64]) else 'NO'}")
+        print(f"  - Testo: {text[:50]}...")
         m = _get_model(model)
         if m["type"] != "base":
             raise HTTPException(400, f"Modello '{model or list(loaded.keys())[0]}' non supporta voice-clone (serve modello Base)")
