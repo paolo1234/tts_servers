@@ -10,10 +10,15 @@ torch.load = lambda *a, **kw: _safe_load(*a, **kw, weights_only=False)
 # Fix per PyTorch 2.6+: torchaudio usa di default torchcodec che fallisce su Windows senza FFmpeg globale
 import torchaudio
 _original_load = torchaudio.load
+_original_info = torchaudio.info
 def _safe_torchaudio_load(filepath, *args, **kwargs):
     kwargs['backend'] = 'soundfile'
     return _original_load(filepath, *args, **kwargs)
+def _safe_torchaudio_info(filepath, *args, **kwargs):
+    kwargs['backend'] = 'soundfile'
+    return _original_info(filepath, *args, **kwargs)
 torchaudio.load = _safe_torchaudio_load
+torchaudio.info = _safe_torchaudio_info
 
 from TTS.api import TTS
 from flask import Flask, request, send_file, jsonify, Response
