@@ -113,32 +113,32 @@ echo [5] Installazione PyTorch...
 if "%CUDA_VERSION%"=="cpu" goto :INSTALL_CPU_TORCH
 
 echo   Tentativo %CUDA_VERSION%...
-uv pip install torch torchvision torchaudio torchcodec --extra-index-url https://download.pytorch.org/whl/%CUDA_VERSION% && (
+uv pip install torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/%CUDA_VERSION% && (
     set CUDA_VERSION=%CUDA_VERSION%
     goto :TORCH_OK
 )
 
 echo   Fallback cu124...
-uv pip install torch torchvision torchaudio torchcodec --extra-index-url https://download.pytorch.org/whl/cu124 && (
+uv pip install torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/cu124 && (
     set CUDA_VERSION=cu124
     goto :TORCH_OK
 )
 
 echo   Fallback cu121...
-uv pip install torch torchvision torchaudio torchcodec --extra-index-url https://download.pytorch.org/whl/cu121 && (
+uv pip install torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/cu121 && (
     set CUDA_VERSION=cu121
     goto :TORCH_OK
 )
 
 echo   Fallback cu118...
-uv pip install torch torchvision torchaudio torchcodec --extra-index-url https://download.pytorch.org/whl/cu118 && (
+uv pip install torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/cu118 && (
     set CUDA_VERSION=cu118
     goto :TORCH_OK
 )
 
 :INSTALL_CPU_TORCH
 echo   Versione CPU...
-uv pip install torch torchvision torchaudio torchcodec
+uv pip install torch torchvision torchaudio
 if errorlevel 1 (
     echo ERRORE: installazione PyTorch fallita
     pause
