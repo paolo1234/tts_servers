@@ -15,4 +15,8 @@ venv.bak/
 uv.lock
 huggingface_cache/
 assets/
+speakers/
+temp_uploaded/
 last_models.txt
+uv.exe
+uvx.exe
