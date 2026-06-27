@@ -204,8 +204,8 @@ def create_app(models_config: Dict[str, str], device: str = "cuda:0", dtype: str
         return info
 
     @app.post("/v1/tts/custom-voice")
-    async def custom_voice(text=Form(...), speaker=Form(None), model=Form(None), language="Auto", instruct=Form(None),
-                           max_new_tokens=None, temperature=None, top_k=None, top_p=None, repetition_penalty=None):
+    async def custom_voice(text=Form(...), speaker=Form(None), model=Form(None), language=Form("Auto"), instruct=Form(None),
+                           max_new_tokens=Form(None), temperature=Form(None), top_k=Form(None), top_p=Form(None), repetition_penalty=Form(None)):
         print(f"\n[Qwen3-TTS] Ricevuta richiesta /custom-voice")
         print(f"  - Modello richiesto: {model}")
         print(f"  - Speaker: {speaker}")
@@ -230,8 +230,8 @@ def create_app(models_config: Dict[str, str], device: str = "cuda:0", dtype: str
             raise HTTPException(400, f"{type(e).__name__}: {e}")
 
     @app.post("/v1/tts/voice-design")
-    async def voice_design(text=Form(...), instruct=Form(...), model=Form(None), language="Auto",
-                           max_new_tokens=None, temperature=None, top_k=None, top_p=None, repetition_penalty=None):
+    async def voice_design(text=Form(...), instruct=Form(...), model=Form(None), language=Form("Auto"),
+                           max_new_tokens=Form(None), temperature=Form(None), top_k=Form(None), top_p=Form(None), repetition_penalty=Form(None)):
         print(f"\n[Qwen3-TTS] Ricevuta richiesta /voice-design")
         print(f"  - Modello richiesto: {model}")
         print(f"  - Instruct: {instruct}")
@@ -252,10 +252,10 @@ def create_app(models_config: Dict[str, str], device: str = "cuda:0", dtype: str
             raise HTTPException(400, f"{type(e).__name__}: {e}")
 
     @app.post("/v1/tts/voice-clone")
-    async def voice_clone(text=Form(...), model=Form(None), language="Auto",
-                          ref_audio=None, ref_audio_url=None, ref_audio_base64=None,
-                          ref_text=Form(None), x_vector_only_mode=False,
-                          max_new_tokens=None, temperature=None, top_k=None, top_p=None, repetition_penalty=None):
+    async def voice_clone(text=Form(...), model=Form(None), language=Form("Auto"),
+                          ref_audio: UploadFile = File(None), ref_audio_url=Form(None), ref_audio_base64=Form(None),
+                          ref_text=Form(None), x_vector_only_mode=Form(False),
+                          max_new_tokens=Form(None), temperature=Form(None), top_k=Form(None), top_p=Form(None), repetition_penalty=Form(None)):
         print(f"\n[Qwen3-TTS] Ricevuta richiesta /voice-clone")
         print(f"  - Modello richiesto: {model}")
         print(f"  - Ref Text: {ref_text}")
